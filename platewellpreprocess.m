@@ -1,12 +1,20 @@
 % does routine preprocessing on the well
 % subtracts autofluoresence from well using white cell well
-function [od, fluor] = platewellpreprocess(plate, datawell, white, blank)
-data = plate(:, datawell);
-whitedata = plate(:, white);
-blankdata = plate(:, blank);
-od = data(1:25) -  blankdata(1:25); % assumes 25 timepoints
-fluor = data(26:length(data));
-wfluor = whitedata(26:length(whitedata));
-fluor = fluor - wfluor;
-fluor = reshape(fluor, [25, 3]); % again, assumes 25 timepoints
+% requires the number of fluoresences it's looking for and the number of
+% timepoints
+% put a negative number or 0 for blank if the plate has no OD blank
+% a fluoresence blank is mandatory, because unlike OD blank, it can change
+% much more
+function [od, fluor] = platewellpreprocess(plate, ntime, nvar, datawell, white, blank)
+[od, fluor] = slice_OD_flu(plate, ntime, nvar, datawell);
+[~, wfluor] = slice_OD_flu(plate, ntime, nvar, white);
+% if the plate has no blank, we assume a blank of 0.1 which is typical for
+% M9 media at 200 uL in the Tecan Spark
+if blank < 1
+    od_b = ones(size(od)) * 0.1;
+else
+    [od_b, ~] = slice_OD_flu(plate, ntime, nvar, blank);
+end
 
+od = od - od_b;
+fluor = fluor - wfluor;

@@ -1,4 +1,7 @@
-file = '180503_W_timecourse.xlsx';
+% File I/O
+% Add filepath to all data
+addpath('C:\Users\david\Dropbox\Rice\Bennett Lab\Data\Consortia Networks\Plate Reader')
+file = '180623_YFP_const_timecourse_MS.xlsx';
 plate = getplatedata(file);
 
 [ods,red,cfp,yfp] = deal(zeros(25, 9));
