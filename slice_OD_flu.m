@@ -3,9 +3,6 @@
 function [od, fluor] = slice_OD_flu(plate, ntime, nvar, datawell)
 data = zeros(ntime, nvar);
 for i = 1:nvar
-    i
-    ntime
-    datawell
     data(:, i) = plate(((i-1)*ntime) + (1:ntime), datawell);
 end
 od = data(:, 1);

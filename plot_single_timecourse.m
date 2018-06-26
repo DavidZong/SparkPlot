@@ -22,7 +22,7 @@
 % od_fig: the figure handle to the figure that graphed OD
 % flu_fig: the figure handle to the figure that graphed fluoresence
 
-function [od_fig, flu_fig] = plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank)
+function [od_fig, flu_fig] = plot_single_timecourse(plate, nvar, ntime, tspace, datawell, white, blank)
 % calculate the x axis
 t = (0:(ntime-1)) * tspace;
 

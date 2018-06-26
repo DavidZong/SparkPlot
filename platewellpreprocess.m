@@ -8,6 +8,7 @@
 function [od, fluor] = platewellpreprocess(plate, ntime, nvar, datawell, white, blank)
 [od, fluor] = slice_OD_flu(plate, ntime, nvar, datawell);
 [~, wfluor] = slice_OD_flu(plate, ntime, nvar, white);
+
 % if the plate has no blank, we assume a blank of 0.1 which is typical for
 % M9 media at 200 uL in the Tecan Spark
 if blank < 1
