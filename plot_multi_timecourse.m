@@ -1,6 +1,6 @@
-% This script takes in a plate of data and plots a timecourse from a
-% specified well from that plate. The inputs are the plate data file,
-% number of things to plot, length of the time course, and the well number.
+% This script takes in a plate of data and plots a timecourses from a
+% specified wells from that plate. The inputs are the plate data file,
+% number of things to plot, length of the time course, and the well numbers.
 
 % When this script is run, it will ask the user for the datapath. If you
 % don't want this to happen a valid path must be supplied as a variable.
@@ -14,26 +14,21 @@
 % for well numbers use the generateWellMap.m to figure out what number it
 % is
 
-% datawell: the well to plot
-% white: the white well
+% datawell: the wells to plot, as a vector
+% white: the white wells, as a vector
 % blank: the blank well, use a negative number or 0 if there's no blank
 
 % returns:
 % od_fig: the figure handle to the figure that graphed OD
 % flu_fig: the figure handle to the figure that graphed fluoresence
 
-function [od_fig, flu_fig] = plot_single_timecourse(plate, nvar, ntime, tspace, datawell, white, blank)
+function [od_fig, flu_fig] = plot_multi_timecourse(plate, nvar, ntime, tspace, datawell, white, blank)
 % calculate the x axis
 t = (0:(ntime-1)) * tspace;
 
 % process the well, subtract background OD, and white cells from
 % fluoresence, then normalize the fluorescence to the OD
-traces = length(datawell);
-od = zeros(ntime, traces);
-fluor = zeros(ntime, traces);
-for i = 1:traces
-    [od(:, i), fluor(:, i)] = platewellpreprocess(plate, ntime, nvar, datawell(i), white(i), blank(i));
-end
+[od, fluor] = platewellpreprocess(plate, ntime, nvar, datawell, white, blank);
 
 % normalize fluorescence to OD
 nfluor = fluor ./ od;
@@ -48,7 +43,7 @@ end
 % plot fluorescences, if there is more than one fluorescence, it will plot
 % subfigures
 flu_fig = figure;
-numfluor = nvar - 1;
+numfluor = length(nfluor(1, :));
 if numfluor > 1
     for i = 1:numfluor
         subplot(1, 3, i)
