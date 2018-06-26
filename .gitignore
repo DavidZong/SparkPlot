@@ -26,3 +26,9 @@ codegen/
 
 # Octave session info
 octave-workspace
+
+# Output files
+output/
+
+# Shortcut Links
+*lnk

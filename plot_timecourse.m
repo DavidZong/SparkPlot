@@ -23,7 +23,7 @@
 % od_fig: the figure handle to the figure that graphed OD
 % flu_fig: the figure handle to the figure that graphed fluoresence
 
-function [od_fig, flu_fig] = plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank)
+function [flu_fig, od_fig] = plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank)
 % calculate the x axis
 t = (0:(ntime-1)) * tspace;
 
@@ -48,27 +48,31 @@ end
 
 % plot fluorescences, if there is more than one fluorescence, it will plot
 % subfigures
-flu_fig = figure;
+figure;
 numfluor = nvar - 1;
 if numfluor > 1
     for i = 1:numfluor
         subplot(1, 3, i)
-        plot(t, nfluor(:, i), 'Linewidth', 2)
+        fig1{i} = plot(t, nfluor(:, i), 'Linewidth', 2) % this might break the handle (check later)
         xlabel('Time (min)')
         ylabel('Fluorescence / OD (au)')
         xticks(0:tickspace:t(end))
         xlim([0, t(end)])
     end
+else
+    fig1 = plot(t, nfluor, 'Linewidth', 2);
+    xlabel('Time (min)')
+    ylabel('Fluorescence / OD (au)')
+    xticks(0:tickspace:t(end))
+    xlim([0, t(end)])
 end
-plot(t, nfluor, 'Linewidth', 2)
-xlabel('Time (min)')
-ylabel('Fluorescence / OD (au)')
-xticks(0:tickspace:t(end))
-xlim([0, t(end)])
+flu_fig = ancestor(fig1, 'figure');
+
 
 % plot OD
-od_fig = figure;
-plot(t, od, 'Linewidth', 2)
+figure;
+fig2 = plot(t, od, 'Linewidth', 2);
+od_fig  = ancestor(fig2, 'figure');
 xlabel('Time (min)')
 ylabel('OD600 (au)')
 xticks(0:tickspace:t(end))
