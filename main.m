@@ -23,7 +23,7 @@ blank = -1*ones(size(white));
 for i = 1:1
     [fig1, fig2] = plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank);
     fig1;
-    legend('A1', 'E1', 'A7', 'E7', 'Location', 'northwest')
+    legend(wells_to_letters(datawell), 'Location', 'northwest')
     fig2;
-    legend('A1', 'E1', 'A7', 'E7', 'Location', 'northwest')
+    legend(wells_to_letters(datawell), 'Location', 'northwest')
 end
