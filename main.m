@@ -6,24 +6,33 @@
 %%
 % Plot the constiutive YFP experiments.
 
-file = '180624_YFP_const_timecourse_DZ.xlsx';
+% comment out the one that you don't want to plot
+file = '180623_YFP_const_timecourse_MS.xlsx';
+% file = '180624_YFP_const_timecourse_DZ.xlsx';
+
+% adjust filepath as needed
+% datapath = 'C:\Users\david\Dropbox\Rice\Bennett Lab\Data\Consortia Networks\Plate Reader';
+datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
+
 nvar = 2;
 ntime = 109;
 tspace = 10;
-datapath = 'C:\Users\david\Dropbox\Rice\Bennett Lab\Data\Consortia Networks\Plate Reader';
 plate = spark_timecourse_IO(datapath, file);
 
 wellmap = generateWellMap(8, 12);
-
-datawell = reshape(wellmap([1, 5], [1, 7]), [], 1);
-white = reshape(wellmap([4, 8], [1, 7]), [], 1);
-blank = -1*ones(size(white));
-
-
-for i = 1:1
-    [fig1, fig2] = plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank);
-    fig1;
-    legend(wells_to_letters(datawell), 'Location', 'northwest')
-    fig2;
-    legend(wells_to_letters(datawell), 'Location', 'northwest')
+% loop through the plate and plot each quadrant's equivlant well in a
+% subplot. figure best viewed fullscreen
+i = 1;
+figure;
+for y = 1:3
+    for x = 1:6
+        subplot(3, 6, i)
+        datawell = reshape(wellmap([y, y+4], [x, x+6]), [], 1);
+        white = reshape(wellmap([4, 8], [x, x+6]), [], 1);
+        blank = -1*ones(size(white));
+        plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank);
+        ylim([0 inf])
+        legend(wells_to_letters(datawell), 'Location', 'southeast')
+        i = i + 1;
+    end
 end
