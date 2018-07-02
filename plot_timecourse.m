@@ -23,10 +23,13 @@
 % various fluorescences. can be a vector if multiple fluorescences are
 % desired, but the y-axis might get weird. defaults to OD var=1 if left
 % unset
+% normalize (optional): if this is true then the fluorescence will be
+% normalized, but if set to false or 0, then there will be no
+% normalization. the default value is true or 1
 
-function plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank, var)
+function plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank, var, normalize, subtractBL, subtractBG)
 % Check number of inputs.
-if nargin > 8
+if nargin > 11
     errorStruct.message = 'Too many inputs.';
     errorStruct.identifier = 'plot_timecourse:TooManyInputs';
     error(errorStruct);
@@ -36,6 +39,18 @@ end
 switch nargin
     case 7
         var = 1;
+        normalize = 1;
+        subtractBL = 1;
+        subtractBG = 1;
+    case 8
+        normalize = 1;
+        subtractBL = 1;
+        subtractBG = 1;
+    case 9
+        subtractBL = 1;
+        subtractBG = 1;
+    case 10
+        subtractBG = 1;
 end
 
 % TODO: check if var is valid
@@ -49,11 +64,17 @@ traces = length(datawell);
 od = zeros(ntime, traces);
 fluor = zeros(ntime, traces);
 for i = 1:traces
-    [od(:, i), fluor(:, i)] = platewellpreprocess(plate, ntime, nvar, datawell(i), white(i), blank(i));
+    [od(:, i), fluor(:, i)] = platewellpreprocess(plate, ntime, nvar, datawell(i), white(i), blank(i), subtractBL, subtractBG);
 end
 
-% normalize fluorescence to OD
-nfluor = fluor ./ od;
+% normalize fluorescence to OD if normalize is true
+if normalize
+    nfluor = fluor ./ od;
+    fluoresence_label = 'Fluoresence / OD600 (au)';
+else
+    nfluor = fluor;
+    fluoresence_label = 'Fluoresence (au)';
+end
 
 % calculate the number of ticks to display and the interval
 if mod(t(end), 6) == 0
@@ -64,9 +85,9 @@ end
 
 % plot fluorescence or OD, depending on var. 
 if all(var > 1)
-    plot(t, nfluor(:, var), 'Linewidth', 2);
+    plot(t, nfluor, 'Linewidth', 2);
     xlabel('Time (min)')
-    ylabel('Fluorescence / OD (au)')
+    ylabel(fluoresence_label)
     xticks(0:tickspace:t(end))
     xlim([0, t(end)])
 else

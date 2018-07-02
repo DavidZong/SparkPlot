@@ -5,7 +5,7 @@
 % put a negative number or 0 for blank if the plate has no OD blank
 % a fluoresence blank is mandatory, because unlike OD blank, it can change
 % much more
-function [od, fluor] = platewellpreprocess(plate, ntime, nvar, datawell, white, blank)
+function [od, fluor] = platewellpreprocess(plate, ntime, nvar, datawell, white, blank, subtractBL, subtractBG)
 [od, fluor] = slice_OD_flu(plate, ntime, nvar, datawell);
 [~, wfluor] = slice_OD_flu(plate, ntime, nvar, white);
 
@@ -17,5 +17,10 @@ else
     [od_b, ~] = slice_OD_flu(plate, ntime, nvar, blank);
 end
 
-od = od - od_b;
-fluor = fluor - wfluor;
+if subtractBL
+    od = od - od_b;
+end
+
+if subtractBG
+    fluor = fluor - wfluor;
+end
