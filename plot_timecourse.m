@@ -27,11 +27,15 @@
 % normalized, but if set to false or 0, then there will be no
 % normalization. the default value is true or 1
 
-function plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank, var, normalize, subtractBL, subtractBG)
+function plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank, var, normalize, subtractBL, subtractBG, avgblank, avgwhite)
 % Check number of inputs.
-if nargin > 11
+if nargin > 13
     errorStruct.message = 'Too many inputs.';
     errorStruct.identifier = 'plot_timecourse:TooManyInputs';
+    error(errorStruct);
+elseif narging < 7
+    errorStruct.message = 'Too few inputs.';
+    errorStruct.identifier = 'plot_timecourse:notEnoughInputs';
     error(errorStruct);
 end
 
@@ -51,6 +55,13 @@ switch nargin
         subtractBG = 1;
     case 10
         subtractBG = 1;
+        avgblank = 0;
+        avgwhite = 0;
+    case 11
+        avgblank = 0;
+        avgwhite = 0;
+    case 12
+        avgwhite = 0;
 end
 
 % TODO: check if var is valid
@@ -64,7 +75,7 @@ traces = length(datawell);
 od = zeros(ntime, traces);
 fluor = zeros(ntime, traces);
 for i = 1:traces
-    [od(:, i), fluor(:, i)] = platewellpreprocess(plate, ntime, nvar, datawell(i), white(i), blank(i), subtractBL, subtractBG);
+    [od(:, i), fluor(:, i)] = platewellpreprocess(plate, ntime, nvar, datawell(i), white(i), blank(i), subtractBL, subtractBG, avgblank, avgwhite);
 end
 
 % normalize fluorescence to OD if normalize is true

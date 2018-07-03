@@ -44,34 +44,46 @@ for var = [1, 2]
 end
 
 %%
-% Plot the 2nd version of the YFP experiments
+% Plot the 2nd version of the YFP experiments, the ones with blanks on the
+% top and bottom row June 27 - July 3
 
-% comment out the one that you don't want to plot
-file = '180623_YFP_const_timecourse_MS.xlsx';
+% load up all the files in a cell array
+files = {'180627_YFP_const_timecourse_DZ.xlsx',...
+    '180628_YFP_const_timecourse_MS.xlsx',...
+    '180629_YFP_const_timecourse_DZ.xlsx',...
+    '180703_YFP_const_timecourse_DZ.xlsx'};
 
-% adjust filepath as needed
 datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
 
+% define constant variables
 nvar = 2;
 ntime = 109;
 tspace = 10;
+
+% optional flags
+normalize = 1;
+subtractBL = 0;
+subtractBG = 0;
+
 plate = spark_timecourse_IO(datapath, file);
 
 wellmap = generateWellMap(8, 12);
 % loop through the plate and plot each quadrant's equivlant well in a
 % subplot. figure best viewed fullscreen
-i = 1;
-var = 2;
-figure('position', [0,0,1920,1080])
-for y = 1:3
-    for x = 1:6
-        subplot(3, 6, i)
-        datawell = reshape(wellmap([y, y+4], [x, x+6]), [], 1);
-        white = reshape(wellmap([4, 8], [x, x+6]), [], 1);
-        blank = -1*ones(size(white));
-        plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank, var);
-        ylim([0 inf])
-        legend(wells_to_letters(datawell), 'Location', 'southeast')
-        i = i + 1;
+% loop OD then YFP
+for var = 1:2
+    i = 1;
+    figure('position', [0,0,1920,1080])
+    for y = 1:3
+        for x = 1:6
+            subplot(3, 6, i)
+            datawell = reshape(wellmap([y, y+4], [x, x+6]), [], 1);
+            white = reshape(wellmap([4, 8], [x, x+6]), [], 1);
+            blank = -1*ones(size(white));
+            plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank, var, normalize, subtractBL, subtractBG);
+            ylim([0 inf])
+            legend(wells_to_letters(datawell), 'Location', 'southeast')
+            i = i + 1;
+        end
     end
 end
