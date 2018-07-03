@@ -33,7 +33,7 @@ if nargin > 13
     errorStruct.message = 'Too many inputs.';
     errorStruct.identifier = 'plot_timecourse:TooManyInputs';
     error(errorStruct);
-elseif narging < 7
+elseif nargin < 7
     errorStruct.message = 'Too few inputs.';
     errorStruct.identifier = 'plot_timecourse:notEnoughInputs';
     error(errorStruct);
@@ -64,7 +64,11 @@ switch nargin
         avgwhite = 0;
 end
 
-% TODO: check if var is valid
+% TODO: check if var is valid, since it has to be greater than 1 and less
+% than nvar
+if var < 1 || var > nvar
+    error('var is invalid. must be inbetween 1 and nvar inclusive');
+end
 
 % calculate the x axis
 t = (0:(ntime-1)) * tspace;
