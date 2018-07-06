@@ -1,11 +1,5 @@
 % This function takes a single or several timecourse data for OD, fluorescence, or both for
 % normalized fluoresence and generates one plot.
-
-% od: the OD, is required if normalize is true
-% fluor: the fluoresence, also required if normalize is true
-% tspace: the time in minutes that the timepoints are spaced apart
-% normalize: if this is true, the program will force normalization
-
 function plot_timecourse(od, fluor, tspace, normalize)
 % normalize fluorescence to OD if normalize is true
 ntime = length(od(:,1));
