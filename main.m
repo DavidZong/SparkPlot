@@ -61,13 +61,15 @@ ntime = 109;
 tspace = 10;
 
 % optional flags
-normalize = 1;
-subtractBL = 0;
-subtractBG = 0;
-
-plate = spark_timecourse_IO(datapath, file);
-
+normalize = 0;
+subtractBL = 1;
+subtractBG = 1;
 wellmap = generateWellMap(8, 12);
+
+%for f = 1:length(files)
+%file = files{f};
+file = files{2};
+plate = spark_timecourse_IO(datapath, file);
 % loop through the plate and plot each quadrant's equivlant well in a
 % subplot. figure best viewed fullscreen
 % loop OD then YFP
@@ -80,10 +82,16 @@ for var = 1:2
             datawell = reshape(wellmap([y, y+4], [x, x+6]), [], 1);
             white = reshape(wellmap([4, 8], [x, x+6]), [], 1);
             blank = -1*ones(size(white));
-            plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank, var, normalize, subtractBL, subtractBG);
+            [od, fluor] = extract_timecourse(plate, nvar, ntime, datawell, white, blank, subtractBL, subtractBG);
+            if var == 1
+                plot_timecourse(od, 0, tspace, 0)
+            else
+                plot_timecourse(od, fluor, tspace, normalize)
+            end
             ylim([0 inf])
             legend(wells_to_letters(datawell), 'Location', 'southeast')
             i = i + 1;
         end
     end
 end
+%end
