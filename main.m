@@ -5,6 +5,7 @@
 
 %%
 % Plot the constiutive YFP experiments.
+% PROBABLY OUTDATED
 
 % comment out the one that you don't want to plot
 %file = '180623_YFP_const_timecourse_MS.xlsx';
@@ -96,3 +97,6 @@ for f = 1:length(files)
     end
 end
 
+%%
+% Plot the 1st round of IPTG induction experiments, running from July 4th
+% to July 6th
