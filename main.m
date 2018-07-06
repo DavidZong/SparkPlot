@@ -82,7 +82,12 @@ for f = 1:length(files)
                 datawell = reshape(wellmap([y+1, y+4], [x, x+4, x+8]), [], 1);
                 white = reshape(wellmap([y+1, y+4], [4, 8, 12]), [], 1);
                 blank = reshape(wellmap([1, 8], [x, x+4, x+8]), [], 1);
-                plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank, var, normalize, subtractBL, subtractBG);
+                [od, fluor] = extract_timecourse(plate, nvar, ntime, datawell, white, blank, subtractBL, subtractBG);
+                if var == 1
+                    plot_timecourse(od, 0, tspace, 0)
+                else
+                    plot_timecourse(od, fluor, tspace, normalize)
+                end
                 ylim([0 inf])
                 legend(wells_to_letters(datawell), 'Location', 'southeast')
                 i = i + 1;
@@ -90,3 +95,4 @@ for f = 1:length(files)
         end
     end
 end
+
