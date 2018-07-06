@@ -64,7 +64,7 @@ switch nargin
         avgwhite = 0;
 end
 
-% TODO: check if var is valid, since it has to be greater than 1 and less
+% check if var is valid, since it has to be greater than 1 and less
 % than nvar
 if var < 1 || var > nvar
     error('var is invalid. must be inbetween 1 and nvar inclusive');

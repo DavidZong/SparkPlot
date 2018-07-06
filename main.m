@@ -7,8 +7,8 @@
 % Plot the constiutive YFP experiments.
 
 % comment out the one that you don't want to plot
-file = '180623_YFP_const_timecourse_MS.xlsx';
-%file = '180624_YFP_const_timecourse_DZ.xlsx';
+%file = '180623_YFP_const_timecourse_MS.xlsx';
+file = '180624_YFP_const_timecourse_DZ.xlsx';
 
 % adjust filepath as needed
 datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
@@ -20,8 +20,8 @@ plate = spark_timecourse_IO(datapath, file);
 
 % optional flags
 normalize = 1;
-subtractBL = 0;
-subtractBG = 0;
+subtractBL = 1;
+subtractBG = 1;
 
 wellmap = generateWellMap(8, 12);
 % loop through the plate and plot each quadrant's equivlant well in a
@@ -61,29 +61,32 @@ ntime = 109;
 tspace = 10;
 
 % optional flags
-normalize = 1;
-subtractBL = 0;
-subtractBG = 0;
-
-plate = spark_timecourse_IO(datapath, file);
-
+normalize = 0;
+subtractBL = 1;
+subtractBG = 1;
 wellmap = generateWellMap(8, 12);
-% loop through the plate and plot each quadrant's equivlant well in a
-% subplot. figure best viewed fullscreen
-% loop OD then YFP
-for var = 1:2
-    i = 1;
-    figure('position', [0,0,1920,1080])
-    for y = 1:3
-        for x = 1:6
-            subplot(3, 6, i)
-            datawell = reshape(wellmap([y, y+4], [x, x+6]), [], 1);
-            white = reshape(wellmap([4, 8], [x, x+6]), [], 1);
-            blank = -1*ones(size(white));
-            plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank, var, normalize, subtractBL, subtractBG);
-            ylim([0 inf])
-            legend(wells_to_letters(datawell), 'Location', 'southeast')
-            i = i + 1;
+
+% loop through all files in the experiment and plot everything
+for f = 1:length(files)
+    file = files{f};
+    plate = spark_timecourse_IO(datapath, file);
+    % loop through the plate and plot each quadrant's equivlant well in a
+    % subplot. figure best viewed fullscreen
+    % loop OD then YFP
+    for var = 1:nvar
+        i = 1;
+        figure('position', [0,0,1920,1080])
+        for y = 1:3
+            for x = 1:4
+                subplot(3, 4, i)
+                datawell = reshape(wellmap([y+1, y+4], [x, x+4, x+8]), [], 1);
+                white = reshape(wellmap([y+1, y+4], [4, 8, 12]), [], 1);
+                blank = reshape(wellmap([1, 8], [x, x+4, x+8]), [], 1);
+                plot_timecourse(plate, nvar, ntime, tspace, datawell, white, blank, var, normalize, subtractBL, subtractBG);
+                ylim([0 inf])
+                legend(wells_to_letters(datawell), 'Location', 'southeast')
+                i = i + 1;
+            end
         end
     end
 end
