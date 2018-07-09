@@ -135,12 +135,12 @@ for y = 1:3
         [od, fluor] = extract_timecourse(plate, nvar, ntime, datawell, white, blank, subtractBL, subtractBG);
         for var = 1:nvar
             if var == 1
-                figures(1);
+                set(0, 'currentfigure', figure(1));
                 subplot(3, 10, i)
                 plot_timecourse(od, 0, tspace, 0)
             else
                 fluor_current = squeeze(fluor(:, var-1, :));
-                figures(var);
+                set(0, 'currentfigure', figure(var));
                 subplot(3, 10, i)
                 plot_timecourse(od, fluor_current, tspace, normalize)
             end
