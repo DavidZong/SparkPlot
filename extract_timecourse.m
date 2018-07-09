@@ -55,9 +55,9 @@ end
 % fluoresence, then normalize the fluorescence to the OD
 nwells = length(datawell);
 od = zeros(ntime, nwells);
-fluor = zeros(ntime, nwells);
+fluor = zeros(ntime, nvar-1, nwells);
 for i = 1:nwells
-    [od(:, i), fluor(:, i)] = platewellpreprocess(plate, ntime, nvar, datawell(i), white(i), blank(i), subtractBL, subtractBG, avgblank, avgwhite);
+    [od(:, i), fluor(:, :, i)] = platewellpreprocess(plate, ntime, nvar, datawell(i), white(i), blank(i), subtractBL, subtractBG, avgblank, avgwhite);
 end
 
 
