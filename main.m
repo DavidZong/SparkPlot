@@ -151,3 +151,63 @@ for y = 1:3
     end
 end
 
+%%
+% Plot the induction of 1st round of IPTG induction experiments, running from July 4th
+% to July 6th
+file = '180705_IPTG_experiment_1_DZ.xlsx';
+datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
+plate = spark_timecourse_IO(datapath, file);
+wellmap = generateWellMap(8, 12);
+nvar = 4;
+ntime = 109;
+tspace = 10;
+x = horzcat(0, 10.^(-1:0.25:1));
+timeslice = 41; % 41 is 400 minutes
+blank = wellmap(:, [1, 12]);
+white = wellmap([1,8], (2:11));
+flucolor = {'mCherry2 ', 'sfCFP ', 'sfYFP '};
+
+realtime = (timeslice-1) * tspace;
+for i = 1:3
+    datawell = wellmap(i+1, (2:11));
+    [od, fluor] = extract_timecourse(plate, nvar, ntime, datawell, white, blank);
+    nfluor = normalize_flu(od, fluor);
+    fluor = squeeze(nfluor(:, i, :));
+    figure;
+    plot_induction(x, fluor, timeslice, 1)
+    title(strcat('t = ', num2str(realtime), ' (min) (', num2str(realtime - 240), ' minutes after induction)'))
+    xlabel('[IPTG] (mM)')
+    ylabel(strcat(flucolor{i}, 'Fluoresence / OD600 (au)'))
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
