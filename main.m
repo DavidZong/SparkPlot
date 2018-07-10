@@ -180,6 +180,51 @@ for i = 1:3
     ylabel(strcat(flucolor{i}, 'Fluoresence / OD600 (au)'))
 end
 
+%%
+% Plot the induction of 1st round of IPTG induction experiments, running from July 4th
+% to July 6th
+file = '180705_IPTG_experiment_1_DZ.xlsx';
+datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
+plate = spark_timecourse_IO(datapath, file);
+wellmap = generateWellMap(8, 12);
+nvar = 4;
+ntime = 109;
+tspace = 10;
+x = horzcat(0, 10.^(-1:0.25:1));
+timeslices = 1:ntime;
+blank = wellmap(:, [1, 12]);
+white = wellmap([1,8], (2:11));
+flucolor = {'mCherry2 ', 'sfCFP ', 'sfYFP '};
+
+outpath = 'output/180705_IPTG_experiment_1/';
+
+
+realtime = (timeslices-1) .* tspace;
+videos = {VideoWriter(strcat(outpath,'mCherry2.avi')), VideoWriter(strcat(outpath,'sfcfp.avi')), VideoWriter(strcat(outpath,'sfyfp.avi'))}; 
+for i = 1:3
+    v = videos{i};
+    v.FrameRate = 7;
+    open(v)
+    for t = timeslices
+        datawell = wellmap(i+1, (2:11));
+        [od, fluor] = extract_timecourse(plate, nvar, ntime, datawell, white, blank);
+        nfluor = normalize_flu(od, fluor);
+        fluor = squeeze(nfluor(:, i, :));
+        plot_induction(x, fluor, t, 1)
+        if t == 1
+            axis tight manual 
+            set(gca,'nextplot','replacechildren');
+        end
+        title(strcat('t = ', num2str(realtime(t)), ' (min) (', num2str(realtime(t) - 240), ' minutes after induction)'))
+        xlabel('[IPTG] (mM)')
+        ylabel(strcat(flucolor{i}, 'Fluoresence / OD600 (au)'))
+        frame = getframe(gcf);
+        writeVideo(v, frame);
+    end
+    close(v);
+end
+
+
 
 
 
