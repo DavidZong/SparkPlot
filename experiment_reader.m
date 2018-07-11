@@ -15,3 +15,8 @@ addpath(experiment_path)
 % find blank wells
 blank_wells = find(strcmp(raw, 'BLANK'));
 % convert to wellMap indexing
+blank_wells = convert_index(blank_wells, 8, 12, 'Spark');
+
+% find white wells
+white_wells = find(contains(raw, 'W'));
+white_wells = convert_index(white_wells, 8, 12, 'Spark');
