@@ -8,8 +8,7 @@
 % Returns:
 % experiment_plate: a struct that is the size of the plate containing the
 % metadata for each well
-
-clc
+% function [metadata, plate_meta] = experiment_reader(experiment_path, file)                            
 experiment_path = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
 file = 'IPTG_Experiment_1.xlsx';
 % File I/O, query user if datapath is left blank or invalid
@@ -28,13 +27,14 @@ addpath(experiment_path)
 % fields:
 % index: the wellmap index of the well
 % strain: the strain of cell in the well, as a string
+% ratio: the mixutre ratio of strains
 % inducer: what inducer is added, as a string
 % conc: the concentration of inducer (in mM), as a double
 % dil: the dilution factor (or starting OD) of the well, as a double
 % fp: expected color of fluorsence of the well
 % blank: whether or not the well is an OD blank or not as a boolean
 % white: whether or not the well is a fluoresence blank or not as a boolean
-plate_meta = struct('index', num2cell(generateWellMap(rows, cols)), 'strain', cell(size(raw)), 'inducer', cell(size(raw)), 'conc', cell(size(raw)), 'dil', cell(size(raw)), 'fp', cell(size(raw)),'blank', cell(size(raw)),'white', cell(size(raw)));
+plate_meta = struct('index', num2cell(generateWellMap(rows, cols)), 'strain', cell(size(raw)), 'ratio', cell(size(raw)), 'inducer', cell(size(raw)), 'conc', cell(size(raw)), 'dil', cell(size(raw)), 'fp', cell(size(raw)),'blank', cell(size(raw)),'white', cell(size(raw)));
 % metadata holds information that's global to the plate
 % fields:
 % nvar: number of variables measured (including OD, if 1 is supplied OD is
@@ -64,11 +64,14 @@ for i = 1:length(white_wells)
     plate_meta(white_wells(i)).white = true;
 end
 
-% use regex to find unique conditions, if the condition isn't found then
+% use regex (or just string find) to find unique conditions, if the condition isn't found then
 % the field is left blank
 % find strains (if any)
+% find ratios (if any)
 % find inducer (if any)
 % find conc (if any)
 % find dilutions (if any)
+% find expected fp (if any)
 
-% list replicate wells
+% list replicate wells, struct with name of condidtion and wells the
+% condition is found in. using wellMap indexing
