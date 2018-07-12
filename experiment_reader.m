@@ -22,6 +22,7 @@ end
 addpath(experiment_path)
 [~,~,raw] = xlsread(file, 'MAP');
 [~,~,raw2] = xlsread(file, 'EDIT');
+[rows, cols] = size(raw);
 
 % make the empty structure with wellMap indexing
 % fields:
@@ -41,11 +42,11 @@ plate_meta = struct('index', num2cell(generateWellMap(rows, cols)), 'strain', ce
 % assumed)
 % ntime: number of timepoints
 % tspace: interval of timepoints in minutes
-metadata = struct('nvar', raw2{16, 2}, 'ntime', raw2{17, 2}, 'tspace', raw2{18, 2});
+metadata = struct('nvar', raw2{16, 2}, 'ntime', raw2{17, 2}, 'tspace', raw2{18, 2}); % this is hardcoded
 
 
 % first make all wells false for blank and white
-for i = 1:96
+for i = 1:(rows*cols)
     plate_meta(i).blank = false;
     plate_meta(i).white = false;
 end
@@ -70,8 +71,24 @@ end
 % find ratios (if any)
 % find inducer (if any)
 % find conc (if any)
+induced_wells = find(contains(raw, 'mM'));
+concpat = '(\d*)+\s+(?:mM)';
+for i = 1:length(induced_wells)
+    plate_meta(induced_wells(i)).conc = 100;
+end
 % find dilutions (if any)
 % find expected fp (if any)
-
+red_wells = find(contains(raw, 'Red'));
+cyan_wells = find(contains(raw, 'Cyan'));
+yellow_wells = find(contains(raw, 'Yellow'));
+for i = 1:length(red_wells)
+    plate_meta(red_wells(i)).fp = 'Red';
+end
+for i = 1:length(cyan_wells)
+    plate_meta(cyan_wells(i)).fp = 'Cyan';
+end
+for i = 1:length(yellow_wells)
+    plate_meta(yellow_wells(i)).fp = 'Yellow';
+end
 % list replicate wells, struct with name of condidtion and wells the
 % condition is found in. using wellMap indexing
