@@ -72,9 +72,12 @@ end
 % find inducer (if any)
 % find conc (if any)
 induced_wells = find(contains(raw, 'mM'));
-concpat = '(\d*)+\s+(?:mM)';
+concpat = '(\d*+\.\d*)|(0\s)'; % might glitch out if there's more numbers
 for i = 1:length(induced_wells)
-    plate_meta(induced_wells(i)).conc = 100;
+    current_string = raw(induced_wells(i));
+    [starti,endi] = regexp(current_string{1}, concpat);
+    extracted = current_string{1}(starti:endi);
+    plate_meta(induced_wells(i)).conc = str2double(extracted);
 end
 % find dilutions (if any)
 % find expected fp (if any)
