@@ -80,6 +80,10 @@ for i = 1:length(induced_wells)
     plate_meta(induced_wells(i)).conc = str2double(extracted);
 end
 % find dilutions (if any)
+defined_od_wells = find(contains(raw, 'OD'));
+defined_dil_wells = find(contains(raw, '1:'));
+dilpat = '(1:\d*)|(0\.\d*)';
+
 % find expected fp (if any)
 red_wells = find(contains(raw, 'Red'));
 cyan_wells = find(contains(raw, 'Cyan'));
