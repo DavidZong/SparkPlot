@@ -35,7 +35,7 @@ addpath(experiment_path)
 % fp: expected color of fluorsence of the well
 % blank: whether or not the well is an OD blank or not as a boolean
 % white: whether or not the well is a fluoresence blank or not as a boolean
-plate_meta = struct('index', num2cell(generateWellMap(rows, cols)), 'strain', cell(size(raw)), 'ratio', cell(size(raw)), 'inducer', cell(size(raw)), 'conc', cell(size(raw)), 'dil', cell(size(raw)), 'fp', cell(size(raw)),'blank', cell(size(raw)),'white', cell(size(raw)));
+plate_meta = struct('strain', cell(size(raw)), 'ratio', cell(size(raw)), 'inducer', cell(size(raw)), 'conc', cell(size(raw)), 'dil', cell(size(raw)), 'fp', cell(size(raw)),'blank', cell(size(raw)),'white', cell(size(raw)));
 % metadata holds information that's global to the plate
 % fields:
 % nvar: number of variables measured (including OD, if 1 is supplied OD is
@@ -146,3 +146,10 @@ for i = 1:length(yellow_wells)
 end
 % list replicate wells, struct with name of condidtion and wells the
 % condition is found in. using wellMap indexing
+% a well is considered a rep if all the fields in it's plate_meta is
+% exactly the same
+
+
+% add indexing
+map = num2cell(generateWellMap(rows, cols));
+[plate_meta(:,:).index] = deal(map{:,:});
