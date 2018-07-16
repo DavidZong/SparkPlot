@@ -108,11 +108,11 @@ for i = 1:length(c4_wells)
 end
 % find conc (if any)
 induced_wells = find(contains(raw, 'mM'));
-concpat = '(\d*+\.\d*)|(0\s)'; % might glitch out if there's more numbers
+concpat = '(\d*\.\d* mM)|(\d* mM)';
 for i = 1:length(induced_wells)
     current_string = raw(induced_wells(i));
     [starti,endi] = regexp(current_string{1}, concpat);
-    extracted = current_string{1}(starti:endi);
+    extracted = current_string{1}(starti:endi-3); % cut off the mM
     plate_meta(induced_wells(i)).conc = str2double(extracted);
 end
 % find dilutions (if any)
