@@ -68,8 +68,44 @@ end
 % use regex (or just string find) to find unique conditions, if the condition isn't found then
 % the field is left blank
 % find strains (if any)
+DZ_wells = find(contains(raw, 'DZ'));
+CN_wells = find(contains(raw, 'CN'));
+DZpat = '(DZ)\w+';
+for i = 1:length(DZ_wells)
+    current_string = raw(induced_wells(i));
+    [starti,endi] = regexp(current_string{1}, concpat);
+    extracted = current_string{1}(starti:endi);
+    plate_meta(DZ_wells(i)).strain = extracted;
+end
+CNpat = '(CN)\w+';
+for i = 1:length(CN_wells)
+    current_string = raw(induced_wells(i));
+    [starti,endi] = regexp(current_string{1}, CNpat);
+    extracted = current_string{1}(starti:endi);
+    plate_meta(CN_wells(i)).strain = extracted;
+end
 % find ratios (if any)
+ratio_wells = find(contains(raw, '/'));
+ratiopat = '\d*\/\d*';
+for i = 1:length(ratio_wells)
+    current_string = raw(ratio_wells(i));
+    [starti,endi] = regexp(current_string{1}, ratiopat);
+    extracted = current_string{1}(starti:endi);
+    plate_meta(CN_wells(i)).strain = extracted;
+end
 % find inducer (if any)
+iptg_wells = find(contains(raw, 'IPTG'));
+c14_wells = find(contains(raw, 'C14'));
+c4_wells = find(contains(raw, 'C4'));
+for i = 1:length(iptg_wells)
+    plate_meta(iptg_wells(i)).inducer = 'IPTG';
+end
+for i = 1:length(c14_wells)
+    plate_meta(c14_wells(i)).inducer = 'C14';
+end
+for i = 1:length(c4_wells)
+    plate_meta(c4_wells(i)).inducer = 'C4';
+end
 % find conc (if any)
 induced_wells = find(contains(raw, 'mM'));
 concpat = '(\d*+\.\d*)|(0\s)'; % might glitch out if there's more numbers
@@ -83,7 +119,18 @@ end
 defined_od_wells = find(contains(raw, 'OD'));
 defined_dil_wells = find(contains(raw, '1:'));
 dilpat = '(1:\d*)|(0\.\d*)';
-
+for i = 1:length(defined_od_wells)
+    current_string = raw(defined_od_wells(i));
+    [starti,endi] = regexp(current_string{1}, dilpat);
+    extracted = current_string{1}(starti:endi);
+    plate_meta(induced_wells(i)).conc = str2double(extracted);
+end
+for i = 1:length(defined_dil_wells)
+    current_string = raw(defined_dil_wells(i));
+    [starti,endi] = regexp(current_string{1}, dilpat);
+    extracted = current_string{1}(starti:endi);
+    plate_meta(induced_wells(i)).conc = str2double(extracted(3:end)); % removes the 1: part
+end
 % find expected fp (if any)
 red_wells = find(contains(raw, 'Red'));
 cyan_wells = find(contains(raw, 'Cyan'));
