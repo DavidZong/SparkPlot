@@ -124,7 +124,8 @@ plate = spark_timecourse_IO(datapath, file);
 
 figures = gobjects(nvar,1);
 for var = 1:nvar
-    figures(var) = figure('position', [0,0,1920,1080]);
+    %figures(var) = figure('position', [0,0,1920,1080]);
+    figures(var) = figure('position', [1920,0,2560,1080]); % plot on the big monitor
 end
 i = 1;
 for y = 1:3
@@ -236,7 +237,113 @@ for i = 1:3
     close(v);
 end
 
+%%
+% Plot the 2nd round of IPTG induction experiments
 
+file = '180712_IPTG_experiment_3.xlsx';
+
+datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
+
+% define constant variables
+nvar = 4;
+ntime = 49;
+tspace = 10;
+
+% optional flags
+normalize = 1;
+subtractBL = 1;
+subtractBG = 1;
+wellmap = generateWellMap(8, 12);
+
+% loop through all files in the experiment and plot everything
+
+plate = spark_timecourse_IO(datapath, file);
+% loop through the plate and plot each quadrant's equivlant well in a
+% subplot. figure best viewed fullscreen
+
+figures = gobjects(nvar,1);
+for var = 1:nvar
+    %figures(var) = figure('position', [0,0,1920,1080]);
+    figures(var) = figure('position', [1920,0,2560,1080]); % plot on the big monitor
+end
+i = 1;
+for y = 1:3
+    for x = 1:10
+        datawell = reshape(wellmap([y+1, y+4], x+1), [], 1);
+        white = reshape(wellmap([1, 8], x+1), [], 1);
+        blank = reshape(wellmap([y+1, y+4], 1), [], 1);
+        [od, fluor] = extract_timecourse(plate, nvar, ntime, datawell, white, blank, subtractBL, subtractBG);
+        for var = 1:nvar
+            if var == 1
+                set(0, 'currentfigure', figure(1));
+                subplot(3, 10, i)
+                plot_timecourse(od, 0, tspace, 0)
+            else
+                fluor_current = squeeze(fluor(:, var-1, :));
+                set(0, 'currentfigure', figure(var));
+                subplot(3, 10, i)
+                plot_timecourse(od, fluor_current, tspace, normalize)
+            end
+            ylim([0 inf])
+            legend(wells_to_letters(datawell), 'Location', 'southeast')
+        end
+        i = i + 1;
+    end
+end
+
+
+%%
+% Plot the diagnostic run from July 16th
+
+file = '180717_IPTG_diagnostic.xlsx';
+
+datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
+
+% define constant variables
+nvar = 4;
+ntime = 49;
+tspace = 10;
+
+% optional flags
+normalize = 0;
+subtractBL = 1;
+subtractBG = 1;
+wellmap = generateWellMap(8, 12);
+
+% loop through all files in the experiment and plot everything
+
+plate = spark_timecourse_IO(datapath, file);
+% loop through the plate and plot each quadrant's equivlant well in a
+% subplot. figure best viewed fullscreen
+
+figures = gobjects(nvar,1);
+for var = 1:nvar
+    %figures(var) = figure('position', [0,0,1920,1080]);
+    figures(var) = figure('position', [1920,0,2560,1080]); % plot on the big monitor
+end
+i = 1;
+
+for x = 1:12
+    datawell = reshape(wellmap(2:7, x), [], 1);
+    white = reshape(wellmap([1, 8], 2:11), [], 1);
+    blank = reshape(wellmap([1, 8], [1, 12]), [], 1);
+    [od, fluor] = extract_timecourse(plate, nvar, ntime, datawell, white, blank, subtractBL, subtractBG);
+    for var = 1:nvar
+        if var == 1
+            set(0, 'currentfigure', figure(1));
+            subplot(4, 3, i)
+            plot_timecourse(od, 0, tspace, 0)
+        else
+            fluor_current = squeeze(fluor(:, var-1, :));
+            set(0, 'currentfigure', figure(var));
+            subplot(4, 3, i)
+            plot_timecourse(od, fluor_current, tspace, normalize)
+        end
+        ylim([0 inf])
+        legend(wells_to_letters(datawell), 'Location', 'southeast')
+    end
+    i = i + 1;
+end
 
 
 
