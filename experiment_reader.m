@@ -9,8 +9,9 @@
 % experiment_plate: a struct that is the size of the plate containing the
 % metadata for each well
 % function [metadata, plate_meta] = experiment_reader(experiment_path, file)                            
-experiment_path = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
-file = 'IPTG_Experiment_1.xlsx';
+% experiment_path = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
+% file = 'IPTG_Experiment_1.xlsx';
+function [metadata, plate_meta] = experiment_reader(experiment_path, file)
 % File I/O, query user if datapath is left blank or invalid
 while exist(experiment_path, 'file') ~= 7
     prompt = 'Enter path to experiment files (include single quotes '') > ';
@@ -84,6 +85,10 @@ for i = 1:length(CN_wells)
     extracted = current_string{1}(starti:endi);
     plate_meta(CN_wells(i)).strain = extracted;
 end
+if isempty(DZ_wells) && isempty(CN_wells)
+    plate_meta = rmfield(plate_meta, 'strain');
+end
+
 % find ratios (if any)
 ratio_wells = find(contains(raw, '/'));
 ratiopat = '\d*\/\d*';
@@ -91,8 +96,12 @@ for i = 1:length(ratio_wells)
     current_string = raw(ratio_wells(i));
     [starti,endi] = regexp(current_string{1}, ratiopat);
     extracted = current_string{1}(starti:endi);
-    plate_meta(CN_wells(i)).strain = extracted;
+    plate_meta(ratio_wells(i)).ratio = extracted;
 end
+if isempty(ratio_wells)
+    plate_meta = rmfield(plate_meta, 'ratio');
+end
+
 % find inducer (if any)
 iptg_wells = find(contains(raw, 'IPTG'));
 c14_wells = find(contains(raw, 'C14'));
@@ -106,6 +115,10 @@ end
 for i = 1:length(c4_wells)
     plate_meta(c4_wells(i)).inducer = 'C4';
 end
+if isempty(iptg_wells) && isempty(c14_wells) && isempty(c4_wells)
+    plate_meta = rmfield(plate_meta, 'inducer');
+end
+
 % find conc (if any)
 induced_wells = find(contains(raw, 'mM'));
 concpat = '(\d*\.\d* mM)|(\d* mM)';
@@ -115,6 +128,10 @@ for i = 1:length(induced_wells)
     extracted = current_string{1}(starti:endi-3); % cut off the mM
     plate_meta(induced_wells(i)).conc = str2double(extracted);
 end
+if isempty(induced_wells)
+    plate_meta = rmfield(plate_meta, 'conc');
+end
+
 % find dilutions (if any)
 defined_od_wells = find(contains(raw, 'OD'));
 defined_dil_wells = find(contains(raw, '1:'));
@@ -123,14 +140,18 @@ for i = 1:length(defined_od_wells)
     current_string = raw(defined_od_wells(i));
     [starti,endi] = regexp(current_string{1}, dilpat);
     extracted = current_string{1}(starti:endi);
-    plate_meta(induced_wells(i)).conc = str2double(extracted);
+    plate_meta(defined_od_wells(i)).dil = str2double(extracted);
 end
 for i = 1:length(defined_dil_wells)
     current_string = raw(defined_dil_wells(i));
     [starti,endi] = regexp(current_string{1}, dilpat);
     extracted = current_string{1}(starti:endi);
-    plate_meta(induced_wells(i)).conc = str2double(extracted(3:end)); % removes the 1: part
+    plate_meta(defined_dil_wells(i)).dil = str2double(extracted(3:end)); % removes the 1: part
 end
+if isempty(defined_od_wells) && isempty(defined_dil_wells)
+    plate_meta = rmfield(plate_meta, 'dil');
+end
+
 % find expected fp (if any)
 red_wells = find(contains(raw, 'Red'));
 cyan_wells = find(contains(raw, 'Cyan'));
@@ -144,12 +165,45 @@ end
 for i = 1:length(yellow_wells)
     plate_meta(yellow_wells(i)).fp = 'Yellow';
 end
+if isempty(red_wells) && isempty(cyan_wells) && isempty(yellow_wells)
+    plate_meta = rmfield(plate_meta, 'fp');
+end
+
 % list replicate wells, struct with name of condidtion and wells the
 % condition is found in. using wellMap indexing
 % a well is considered a rep if all the fields in it's plate_meta is
 % exactly the same
-
-
+all_wells = 1:(rows*cols);
+exp_wells = setdiff(setdiff(all_wells, white_wells), blank_wells);
+unique_experiments = {}; % cell array that holds unique experiments
+unique_experiments_i = []; % a row here corresponds with the same index in unique experiments, but holds the plate index in columns
+unique_experiments_counts = [];
+found = false;
+for i = 1:length(exp_wells)
+    % get the current experiment
+    found = false;
+    current = plate_meta(exp_wells(i));
+    % check if the current experiment is in the list of experiments
+    for j = 1:length(unique_experiments)
+        % if the experiment is found, add the index
+        if isequaln(unique_experiments{j}, current)
+            unique_experiments_counts(j) = unique_experiments_counts(j) + 1;
+            unique_experiments_i(j, unique_experiments_counts(j)) = exp_wells(i);
+            found = true;
+        end
+    end
+    % experiment wasn't found so add it and record the index
+    if ~found
+        unique_experiments{end+1} = current;
+        unique_experiments_i(end+1, 1) = exp_wells(i); 
+        unique_experiments_counts(end+1) = 1;
+    end
+end
+% convert index to wellmap indexes
+unique_experiments_i_spark = convert_index(unique_experiments_i, rows, cols, 'Spark');
 % add indexing
 map = num2cell(generateWellMap(rows, cols));
 [plate_meta(:,:).index] = deal(map{:,:});
+
+metadata.replicate_wells = unique_experiments_i_spark;
+metadata.experiments = unique_experiments;

@@ -14,21 +14,21 @@ sparkmap = generateWellMap(rows, cols);
 matlabmap = reshape(1:(rows * cols), [rows, cols]);
 if strcmp(direction, 'Matlab')
     map = sparkmap;
+    cross = matlabmap;
 elseif strcmp(direction, 'Spark')
     map = matlabmap;
+    cross = sparkmap;
 else
     error('must indicate either "Spark" or "Matlab" for conversion')
 end
 
+flat = reshape(wells, [], 1);
+
 % generate logical matrix by looping
-locations = zeros(rows, cols);
-for i = 1:length(wells)
-    locations = locations + (map == wells(i));
+result = zeros(size(flat));
+for i = 1:length(flat)
+    result(i) = cross(map == flat(i));
 end
 
-% get the conversion
-if strcmp(direction, 'Matlab')
-    out = matlabmap(logical(locations));
-elseif strcmp(direction, 'Spark')
-    out = sparkmap(logical(locations));
-end
+% reshape to original size
+out = reshape(result, size(wells));
