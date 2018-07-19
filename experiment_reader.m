@@ -6,11 +6,32 @@
 % file: filename of the experiment template
 
 % Returns:
-% experiment_plate: a struct that is the size of the plate containing the
+% metadata: a struct that contains global metadata
+% plate_meta: a struct that is the size of the plate containing the
 % metadata for each well
-% function [metadata, plate_meta] = experiment_reader(experiment_path, file)                            
+
+% metadata holds information that's global to the plate
+% fields:
+% nvar: number of variables measured (including OD, if 1 is supplied OD is
+% assumed)
+% ntime: number of timepoints
+% tspace: interval of timepoints in minutes
+
+% plate_meta:
+% index: the wellmap index of the well
+% strain: the strain of cell in the well, as a string
+% ratio: the mixutre ratio of strains
+% inducer: what inducer is added, as a string
+% conc: the concentration of inducer (in mM), as a double
+% dil: the dilution factor (or starting OD) of the well, as a double
+% fp: expected color of fluorsence of the well
+% blank: whether or not the well is an OD blank or not as a boolean
+% white: whether or not the well is a fluoresence blank or not as a boolean
+
+% for debugging
 % experiment_path = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
 % file = 'IPTG_Experiment_1.xlsx';
+% file = 'YFP_const_timecourse_v2.xlsx';
 function [metadata, plate_meta] = experiment_reader(experiment_path, file)
 % File I/O, query user if datapath is left blank or invalid
 while exist(experiment_path, 'file') ~= 7
@@ -25,24 +46,7 @@ addpath(experiment_path)
 [~,~,raw2] = xlsread(file, 'EDIT');
 [rows, cols] = size(raw);
 
-% make the empty structure with wellMap indexing
-% fields:
-% index: the wellmap index of the well
-% strain: the strain of cell in the well, as a string
-% ratio: the mixutre ratio of strains
-% inducer: what inducer is added, as a string
-% conc: the concentration of inducer (in mM), as a double
-% dil: the dilution factor (or starting OD) of the well, as a double
-% fp: expected color of fluorsence of the well
-% blank: whether or not the well is an OD blank or not as a boolean
-% white: whether or not the well is a fluoresence blank or not as a boolean
 plate_meta = struct('strain', cell(size(raw)), 'ratio', cell(size(raw)), 'inducer', cell(size(raw)), 'conc', cell(size(raw)), 'dil', cell(size(raw)), 'fp', cell(size(raw)),'blank', cell(size(raw)),'white', cell(size(raw)));
-% metadata holds information that's global to the plate
-% fields:
-% nvar: number of variables measured (including OD, if 1 is supplied OD is
-% assumed)
-% ntime: number of timepoints
-% tspace: interval of timepoints in minutes
 metadata = struct('nvar', raw2{16, 2}, 'ntime', raw2{17, 2}, 'tspace', raw2{18, 2}); % this is hardcoded
 
 
@@ -54,6 +58,7 @@ end
 
 % find blank wells and mark them in the plate_meta structure
 blank_wells = find(strcmp(raw, 'BLANK'));
+metadata.blanks = blank_wells;
 % set flag for blank
 for i = 1:length(blank_wells)
     plate_meta(blank_wells(i)).blank = true;
@@ -61,6 +66,7 @@ end
 
 % find white wells and mark them in the plate_meta structure
 white_wells = find(contains(raw, 'W'));
+metadata.whites = white_wells;
 % set flag for white
 for i = 1:length(white_wells)
     plate_meta(white_wells(i)).white = true;
@@ -73,14 +79,14 @@ DZ_wells = find(contains(raw, 'DZ'));
 CN_wells = find(contains(raw, 'CN'));
 DZpat = '(DZ)\w+';
 for i = 1:length(DZ_wells)
-    current_string = raw(induced_wells(i));
-    [starti,endi] = regexp(current_string{1}, concpat);
+    current_string = raw(DZ_wells(i));
+    [starti,endi] = regexp(current_string{1}, DZpat);
     extracted = current_string{1}(starti:endi);
     plate_meta(DZ_wells(i)).strain = extracted;
 end
 CNpat = '(CN)\w+';
 for i = 1:length(CN_wells)
-    current_string = raw(induced_wells(i));
+    current_string = raw(CN_wells(i));
     [starti,endi] = regexp(current_string{1}, CNpat);
     extracted = current_string{1}(starti:endi);
     plate_meta(CN_wells(i)).strain = extracted;
@@ -207,3 +213,6 @@ map = num2cell(generateWellMap(rows, cols));
 
 metadata.replicate_wells = unique_experiments_i_spark;
 metadata.experiments = unique_experiments;
+
+
+
