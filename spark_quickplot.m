@@ -10,13 +10,13 @@
 % datapath: full path to the file
 % experimentpath: full path to the experiment
 
-% function spark_quickplot(file, experiment, datapath, experimentpath)
-files = {'180627_YFP_const_timecourse_DZ.xlsx'};
-datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
-experiment = 'YFP_const_timecourse_v2.xlsx';
-experimentpath = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
+function spark_quickplot(files, experiment, datapath, experimentpath)
+% files = {'180627_YFP_const_timecourse_DZ.xlsx'};
+% datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
+% experiment = 'YFP_const_timecourse_v2.xlsx';
+% experimentpath = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
 
-[metadata, plate_meta] = experiment_reader(experimentpath, experiment);
+[metadata, ~] = experiment_reader(experimentpath, experiment);
 
 nexperiments = length(metadata.experiments);
 nreps = length(metadata.replicate_wells(1,:));
@@ -38,6 +38,8 @@ for f = 1:length(files)
     file = files{f};
     plate = spark_timecourse_IO(datapath, file);
     figures = gobjects(metadata.nvar,1);
+    
+    % TODO: determine the window size in a smart way
     for var = 1:metadata.nvar
         %figures(var) = figure('position', [0,0,1920,1080]);
         figures(var) = figure('position', [1920,0,2560,1080]); % plot on the big monitor

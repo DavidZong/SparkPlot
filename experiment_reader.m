@@ -212,6 +212,11 @@ map = num2cell(generateWellMap(rows, cols));
 [plate_meta(:,:).index] = deal(map{:,:});
 
 metadata.replicate_wells = unique_experiments_i_spark;
+% remove white and blank information from experimental wells
+for i=1:length(unique_experiments)
+    unique_experiments{i} = rmfield(unique_experiments{i}, 'blank');
+    unique_experiments{i} = rmfield(unique_experiments{i}, 'white');
+end
 metadata.experiments = unique_experiments;
 
 

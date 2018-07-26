@@ -397,8 +397,13 @@ for x = 1:12
     end
     i = i + 1;
 end
-
-
+%%
+% Testing out the new plotter
+files = {'180705_IPTG_experiment_1_DZ.xlsx'};
+datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
+experiment = 'IPTG_Experiment_1.xlsx';
+experimentpath = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
+spark_quickplot(files, experiment, datapath, experimentpath)
 
 
 
