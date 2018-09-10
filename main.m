@@ -405,8 +405,12 @@ experiment = 'IPTG_Experiment_1.xlsx';
 experimentpath = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
 spark_quickplot(files, experiment, datapath, experimentpath)
 
-
-
+%%
+files = {'180906_X_12h.xlsx'};
+datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
+experiment = 'IPTG_Experiment_Control_12h.xlsx';
+experimentpath = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
+spark_quickplot(files, experiment, datapath, experimentpath)
 
 
 

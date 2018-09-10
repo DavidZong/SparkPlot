@@ -46,7 +46,7 @@ addpath(experiment_path)
 [~,~,raw2] = xlsread(file, 'EDIT');
 [rows, cols] = size(raw);
 
-plate_meta = struct('strain', cell(size(raw)), 'ratio', cell(size(raw)), 'inducer', cell(size(raw)), 'conc', cell(size(raw)), 'dil', cell(size(raw)), 'fp', cell(size(raw)),'blank', cell(size(raw)),'white', cell(size(raw)));
+plate_meta = struct('strain', cell(size(raw)), 'ratio', cell(size(raw)), 'inducer', cell(size(raw)), 'conc', cell(size(raw)), 'dil', cell(size(raw)), 'fp', cell(size(raw)),'blank', cell(size(raw)),'white', cell(size(raw)),'beads', cell(size(raw)));
 metadata = struct('nvar', raw2{16, 2}, 'ntime', raw2{17, 2}, 'tspace', raw2{18, 2}); % this is hardcoded
 
 
@@ -58,15 +58,23 @@ end
 
 % find blank wells and mark them in the plate_meta structure
 blank_wells = find(strcmp(raw, 'BLANK'));
-metadata.blanks = blank_wells;
+metadata.blanks = convert_index(blank_wells, rows, cols, 'Spark');
 % set flag for blank
 for i = 1:length(blank_wells)
     plate_meta(blank_wells(i)).blank = true;
 end
 
+% find bead wells and mark them in the plate_meta structure
+beads_wells = find(strcmp(raw, 'BEADS'));
+metadata.beads = convert_index(beads_wells, rows, cols, 'Spark');
+% set flag for blank
+for i = 1:length(beads_wells)
+    plate_meta(beads_wells(i)).beads = true;
+end
+
 % find white wells and mark them in the plate_meta structure
 white_wells = find(contains(raw, 'W'));
-metadata.whites = white_wells;
+metadata.whites = convert_index(white_wells, rows, cols, 'Spark');
 % set flag for white
 for i = 1:length(white_wells)
     plate_meta(white_wells(i)).white = true;
@@ -180,7 +188,7 @@ end
 % a well is considered a rep if all the fields in it's plate_meta is
 % exactly the same
 all_wells = 1:(rows*cols);
-exp_wells = setdiff(setdiff(all_wells, white_wells), blank_wells);
+exp_wells = setdiff(setdiff(setdiff(all_wells, white_wells), blank_wells), beads_wells);
 unique_experiments = {}; % cell array that holds unique experiments
 unique_experiments_i = []; % a row here corresponds with the same index in unique experiments, but holds the plate index in columns
 unique_experiments_counts = [];
@@ -216,6 +224,7 @@ metadata.replicate_wells = unique_experiments_i_spark;
 for i=1:length(unique_experiments)
     unique_experiments{i} = rmfield(unique_experiments{i}, 'blank');
     unique_experiments{i} = rmfield(unique_experiments{i}, 'white');
+    unique_experiments{i} = rmfield(unique_experiments{i}, 'beads');
 end
 metadata.experiments = unique_experiments;
 

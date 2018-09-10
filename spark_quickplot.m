@@ -10,11 +10,11 @@
 % datapath: full path to the file
 % experimentpath: full path to the experiment
 
-function spark_quickplot(files, experiment, datapath, experimentpath)
-% files = {'180627_YFP_const_timecourse_DZ.xlsx'};
-% datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
-% experiment = 'YFP_const_timecourse_v2.xlsx';
-% experimentpath = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
+%function spark_quickplot(files, experiment, datapath, experimentpath)
+files = {'180906_X_12h.xlsx'};
+datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
+experiment = 'IPTG_Experiment_Control_12h.xlsx';
+experimentpath = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
 
 [metadata, ~] = experiment_reader(experimentpath, experiment);
 
