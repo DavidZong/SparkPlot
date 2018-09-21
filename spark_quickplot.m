@@ -10,10 +10,10 @@
 % datapath: full path to the file
 % experimentpath: full path to the experiment
 
-%function spark_quickplot(files, experiment, datapath, experimentpath)
-files = {'180906_X_12h.xlsx'};
+% function spark_quickplot(files, experiment, datapath, experimentpath)
+files = {'180920_All_12h.xlsx'};% '180907_X_12h.xlsx', '180908_X_12h.xlsx'};
 datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
-experiment = 'IPTG_Experiment_Control_12h.xlsx';
+experiment = 'All_experiment.xlsx';
 experimentpath = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
 
 [metadata, ~] = experiment_reader(experimentpath, experiment);
@@ -29,21 +29,25 @@ disp(['Each experiment is repeated ' num2str(nreps) ' times.'])
 normalize = 0;
 subtractBL = 1;
 subtractBG = 0;
+bio_triplicate = 1;
 
 % determine best arrangement
 nwide = ceil(sqrt(nexperiments));
 ntall = nexperiments/nwide; % might not be an integer
 
+figures = gobjects(metadata.nvar,1);
+% TODO: determine the window size in a smart way
+for var = 1:metadata.nvar
+    %figures(var) = figure('position', [0,0,1920,1080]);
+    figures(var) = figure('position', [1920,0,2560,1080]); % plot on the big monitor
+end
+
+all_avg_od = zeros(metadata.ntime, nexperiments, length(files));
+all_avg_flu = zeros(metadata.ntime, nexperiments, (var-1), length(files));
+
 for f = 1:length(files)
     file = files{f};
     plate = spark_timecourse_IO(datapath, file);
-    figures = gobjects(metadata.nvar,1);
-    
-    % TODO: determine the window size in a smart way
-    for var = 1:metadata.nvar
-        %figures(var) = figure('position', [0,0,1920,1080]);
-        figures(var) = figure('position', [1920,0,2560,1080]); % plot on the big monitor
-    end
 
     for i = 1:nexperiments
         datawell = metadata.replicate_wells(i, :);
@@ -55,14 +59,50 @@ for f = 1:length(files)
                 set(0, 'currentfigure', figure(1));
                 subplot(ntall, nwide, i)
                 plot_timecourse(od, 0, metadata.tspace, 0)
+                all_avg_od(:, i, f) = mean(od, 2);
             else
                 fluor_current = squeeze(fluor(:, var-1, :));
                 set(0, 'currentfigure', figure(var));
                 subplot(ntall, nwide, i)
                 plot_timecourse(od, fluor_current, metadata.tspace, normalize)
+                all_avg_flu(:, i, var-1, f) = mean(fluor_current, 2);
             end
             ylim([0 inf])
             legend(wells_to_letters(datawell), 'Location', 'southeast')
+            if normalize
+                xlim([120, Inf]);
+            end
         end
     end
+end
+
+select_pairs = [3,4;5,6;7,8];
+for i =1:3
+    select = select_pairs(i, :);
+    figure
+    od_triplicate = squeeze(all_avg_od());
+    select_od = od_triplicate(:, select);
+    plot_timecourse(select_od, 0, metadata.tspace, 0)
+    legend('induced', 'uninduced', 'Location', 'northwest')
+    figure
+    for var = 1:(metadata.nvar - 1)
+        subplot(3, 1, var)
+        current_fluor = squeeze(all_avg_flu(:, select, var, :));
+        plot_timecourse(select_od, current_fluor, metadata.tspace, 0)
+        legend('induced', 'uninduced', 'Location', 'northwest')
+    end
+end
+
+select = [1, 9, 11];
+figure
+od_triplicate = squeeze(all_avg_od());
+select_od = od_triplicate(:, select);
+plot_timecourse(select_od, 0, metadata.tspace, 0)
+legend('cascade', 'IFFL', 'Fanout','Location', 'northwest')
+figure
+for var = 1:(metadata.nvar - 1)
+    subplot(3, 1, var)
+    current_fluor = squeeze(all_avg_flu(:, select, var, :));
+    plot_timecourse(select_od, current_fluor, metadata.tspace, 0)
+    legend('cascade', 'IFFL', 'Fanout','Location', 'northwest')
 end

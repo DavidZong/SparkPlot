@@ -1,5 +1,7 @@
 % This function takes a single or several timecourse data for OD, fluorescence, or both for
 % normalized fluoresence and generates one plot.
+% ave indicates if the vector should be averaged and plotted with error
+% bars
 function plot_timecourse(od, fluor, tspace, normalize)
 % normalize fluorescence to OD if normalize is true
 ntime = length(od(:,1));
@@ -22,6 +24,7 @@ if mod(t(end), 6) == 0
 elseif mod(t(end), 4) == 0
     tickspace = t(end) / 4;
 end
+
 
 % plot fluorescence or OD, depending on var. 
 if any(fluor)
