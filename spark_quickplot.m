@@ -11,9 +11,11 @@
 % experimentpath: full path to the experiment
 
 % function spark_quickplot(files, experiment, datapath, experimentpath)
-files = {'180920_All_12h.xlsx'};% '180907_X_12h.xlsx', '180908_X_12h.xlsx'};
+files = {'180920_All_12h.xlsx', '180921_All_12h.xlsx', '180922_All_12h.xlsx'};
+
 datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
 experiment = 'All_experiment.xlsx';
+
 experimentpath = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
 
 [metadata, ~] = experiment_reader(experimentpath, experiment);
@@ -76,33 +78,71 @@ for f = 1:length(files)
     end
 end
 
-select_pairs = [3,4;5,6;7,8];
-for i =1:3
-    select = select_pairs(i, :);
-    figure
-    od_triplicate = squeeze(all_avg_od());
-    select_od = od_triplicate(:, select);
-    plot_timecourse(select_od, 0, metadata.tspace, 0)
-    legend('induced', 'uninduced', 'Location', 'northwest')
-    figure
-    for var = 1:(metadata.nvar - 1)
-        subplot(3, 1, var)
-        current_fluor = squeeze(all_avg_flu(:, select, var, :));
-        plot_timecourse(select_od, current_fluor, metadata.tspace, 0)
-        legend('induced', 'uninduced', 'Location', 'northwest')
-    end
-end
-
-select = [1, 9, 11];
-figure
-od_triplicate = squeeze(all_avg_od());
-select_od = od_triplicate(:, select);
-plot_timecourse(select_od, 0, metadata.tspace, 0)
-legend('cascade', 'IFFL', 'Fanout','Location', 'northwest')
-figure
-for var = 1:(metadata.nvar - 1)
-    subplot(3, 1, var)
-    current_fluor = squeeze(all_avg_flu(:, select, var, :));
-    plot_timecourse(select_od, current_fluor, metadata.tspace, 0)
-    legend('cascade', 'IFFL', 'Fanout','Location', 'northwest')
-end
+% select_pairs = [3,4;5,6;7,8];
+% for i =1:3
+%     select = select_pairs(i, :);
+%     figure
+%     select_od_3d = all_avg_od(:, select, :);
+%     dims = size(select_od_3d);
+%     select_od = reshape(select_od_3d, [dims(1), dims(2)*dims(3)]);
+%     plot_timecourse(select_od, 0, metadata.tspace, 0)
+%     legend('induced day 1', 'uninduced day 1', 'induced day 2', 'uninduced day 2', 'induced day 3', 'uninduced day 3', 'Location', 'northwest')
+%     figure
+%     for var = 1:(metadata.nvar - 1)
+%         subplot(3, 1, var)
+%         current_fluor_3d = squeeze(all_avg_flu(:, select, var, :));
+%         current_fluor = reshape(current_fluor_3d, [dims(1), dims(2)*dims(3)]);
+%         plot_timecourse(select_od, current_fluor, metadata.tspace, 0)
+%         legend('induced day 1', 'uninduced day 1', 'induced day 2', 'uninduced day 2', 'induced day 3', 'uninduced day 3', 'Location', 'northwest')
+%     end
+% end
+% 
+% select = [1, 9, 11];
+% figure
+% select_od_3d = all_avg_od(:, select, :);
+% dims = size(select_od_3d);
+% select_od = reshape(select_od_3d, [dims(1), dims(2)*dims(3)]);
+% plot_timecourse(select_od, 0, metadata.tspace, 0)
+% legend('cascade day 1', 'IFFL day 1', 'Fanout day 1', 'cascade day 2', 'IFFL day 2', 'Fanout day 2','cascade day 3', 'IFFL day 3', 'Fanout day 3', 'Location', 'northwest')
+% figure
+% for var = 1:(metadata.nvar - 1)
+%     subplot(3, 1, var)
+%     current_fluor_3d = squeeze(all_avg_flu(:, select, var, :));
+%     current_fluor = reshape(current_fluor_3d, [dims(1), dims(2)*dims(3)]);
+%     plot_timecourse(select_od, current_fluor, metadata.tspace, 0)
+%     legend('cascade day 1', 'IFFL day 1', 'Fanout day 1', 'cascade day 2', 'IFFL day 2', 'Fanout day 2','cascade day 3', 'IFFL day 3', 'Fanout day 3', 'Location', 'northwest')
+% end
+% 
+% all_avg_od = mean(all_avg_od, 3);
+% all_avg_flu= mean(all_avg_flu, 4);
+% 
+% select_pairs = [3,4;5,6;7,8];
+% for i =1:3
+%     select = select_pairs(i, :);
+%     figure
+%     od_triplicate = squeeze(all_avg_od());
+%     select_od = od_triplicate(:, select);
+%     plot_timecourse(select_od, 0, metadata.tspace, 0)
+%     legend('induced', 'uninduced', 'Location', 'northwest')
+%     figure
+%     for var = 1:(metadata.nvar - 1)
+%         subplot(3, 1, var)
+%         current_fluor = squeeze(all_avg_flu(:, select, var, :));
+%         plot_timecourse(select_od, current_fluor, metadata.tspace, 0)
+%         legend('induced', 'uninduced', 'Location', 'northwest')
+%     end
+% end
+% 
+% select = [9, 11];
+% figure
+% od_triplicate = squeeze(all_avg_od());
+% select_od = od_triplicate(:, select);
+% plot_timecourse(select_od, 0, metadata.tspace, 0)
+% legend('cascade', 'IFFL', 'Fanout','Location', 'northwest')
+% figure
+% for var = 1:(metadata.nvar - 1)
+%     subplot(3, 1, var)
+%     current_fluor = squeeze(all_avg_flu(:, select, var, :));
+%     plot_timecourse(select_od, current_fluor, metadata.tspace, 0)
+%     legend('cascade', 'IFFL', 'Fanout','Location', 'northwest')
+% end
