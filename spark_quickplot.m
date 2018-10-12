@@ -11,12 +11,12 @@
 % experimentpath: full path to the experiment
 
 % function spark_quickplot(files, experiment, datapath, experimentpath)
-files = {'DZ_OD600_YFP_12h_timecourse_20181010-induction2.xlsx'};
+files = {'180920_All_12h.xlsx', '180921_All_12h.xlsx', '180922_All_12h.xlsx'};
 
-datapath = '/Users/meidi/Desktop/rice/bennettlab/plate reader data';
-experiment = 'IPTG-induction-well.xlsx';
+datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
+experiment = 'All_experiment.xlsx';
 
-experimentpath = '/Users/meidi/Desktop/rice/bennettlab/plate reader data';
+experimentpath = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
 
 [metadata, ~] = experiment_reader(experimentpath, experiment);
 
@@ -30,7 +30,7 @@ disp(['Each experiment is repeated ' num2str(nreps) ' times.'])
 % optional flags
 normalize = 0;
 subtractBL = 1;
-subtractBG = 1;
+subtractBG = 0;
 bio_triplicate = 1;
 
 % determine best arrangement
@@ -77,76 +77,6 @@ for f = 1:length(files)
         end
     end
 end
-
-for m = 1:12
-    ave_od_group(:,m) = mean(od(:,6*m-5:6*m),2);
-    ave_flu_group(:,m) = mean(fluor_current(:,6*m-5:6*m),2); 
-end
-
-figure(3)
-subplot(2,1,1)
-plot_timecourse(ave_od_group(:,1:6), 0, metadata.tspace, 0)
-legend('2%','1%','0.4%','0.08%','0.016%','0%','Location','northwest')
-title('induced')
-subplot(2,1,2)
-plot_timecourse(ave_od_group(:,1:6), ave_flu_group(:,1:6), metadata.tspace, normalize)
-legend('2%','1%','0.4%','0.08%','0.016%','0%','Location','northwest')
-
-ave_od_induced = [ave_od_group(:,1:3) ave_od_group(:,7:9)];
-ave_flu_induced = [ave_flu_group(:,1:3) ave_flu_group(:,7:9)];
-ave_od_uninduced = [ave_od_group(:,4:6) ave_od_group(:,10:12)];
-ave_flu_uninduced = [ave_flu_group(:,4:6) ave_flu_group(:,10:12)];
-
-figure(3)
-subplot(2,1,1)
-p1 = plot(0:10:720, ave_od_induced)
-hold on 
-p2 = plot(0:10:720,ave_od_uninduced,'k','Linewidth',0.5)
-hold off
-legend({'0.05-tag','0.005-tag','0.0025-tag','0.05-notag',...
-    '0.005-notag','0.0025-notag'},'Location','northwest')
-title('tag/notag induced')
-subplot(2,1,2)
-plot_timecourse(ave_od_induced, ave_flu_induced, metadata.tspace, normalize)
-hold on
-plot(0:10:720,ave_flu_uninduced./ave_od_uninduced,'k','Linewidth',0.5)
-legend({'0.05-tag','0.005-tag','0.0025-tag','0.05-notag',...
-    '0.005-notag','0.0025-notag'},'Location','northwest')
-
-figure(4)
-subplot(2,1,1)
-plot_timecourse(ave_od_uninduced, 0, metadata.tspace, 0)
-legend({'0.05-tag','0.005-tag','0.0025-tag','0.05-notag',...
-    '0.005-notag','0.0025-notag'},'Location','northwest')
-title('tag/notag un-induced')
-subplot(2,1,2)
-plot_timecourse(ave_od_uninduced, ave_flu_uninduced, metadata.tspace, normalize)
-legend({'0.05-tag','0.005-tag','0.0025-tag','0.05-notag',...
-    '0.005-notag','0.0025-notag'},'Location','northwest')
-
-figure
-plot_timecourse(ave_od_group, ave_flu_group, metadata.tspace, normalize)
-
-
-figure(10)
-for i = 1:12
-    
-
-
-plot(0:10:720,ave_od_group(:,1:3:10),'k')
-hold on
-plot(0:10:720,ave_od_group(:,2:3:11),'b')
-plot(0:10:720,ave_od_group(:,3:3:12),'r')
-
-figure(4)
-subplot(2,1,1)
-plot_timecourse(od(:,1:18), fluor_current(:,1:18), metadata.tspace, normalize)
-
-subplot(2,1,2)
-plot_timecourse(od(:,1:18), 0, metadata.tspace, 0)
-
-
-
 
 % select_pairs = [3,4;5,6;7,8];
 % for i =1:3
