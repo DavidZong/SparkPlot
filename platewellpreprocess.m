@@ -32,6 +32,7 @@ if subtractBL
         od_b = ones(size(od_b)) .* mean(od_b, 2);
     end
     od = od - od_b;
+    od = max(0.0025,od);
 end
 
 if subtractBG
@@ -39,4 +40,5 @@ if subtractBG
         wfluor = ones(size(wfluor)) .* mean(wfluor, 2);
     end
     fluor = fluor - wfluor;
+    fluor = max(0,fluor);
 end
