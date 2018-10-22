@@ -8,7 +8,7 @@ ntime = length(od(:,1));
 if normalize
     nfluor = fluor ./ od;
     fluoresence_label = 'Fluoresence / OD600 (au)';
-elseif any(any(fluor))
+elseif any(fluor)
     nfluor = fluor;
     fluoresence_label = 'Fluoresence (au)';
     ntime = length(nfluor(:,1)); % since od might be empty in this case
@@ -27,7 +27,7 @@ end
 
 
 % plot fluorescence or OD, depending on var. 
-if any(any(fluor))
+if any(fluor)
     plot(t, nfluor, 'Linewidth', 2);
     xlabel('Time (min)')
     ylabel(fluoresence_label)
