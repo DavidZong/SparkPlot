@@ -11,12 +11,12 @@
 % experimentpath: full path to the experiment
 
 % function spark_quickplot(files, experiment, datapath, experimentpath)
-files = {'180920_All_12h.xlsx', '180921_All_12h.xlsx', '180922_All_12h.xlsx'};
+files = {'DZ_OD600_RCY_12h_timecourse_20181019_network1.xlsx'};
 
-datapath = 'C:\Users\david\OneDrive\Plate Reader Data';
-experiment = 'All_experiment.xlsx';
+datapath = '/Users/meidi/Desktop/rice/bennettlab/plate reader data';
+experiment = 'network-well1.xlsx';
 
-experimentpath = 'C:\Users\david\OneDrive\Plate Reader Data\Experiment Well Maps';
+experimentpath = '/Users/meidi/Desktop/rice/bennettlab/plate reader data';
 
 [metadata, ~] = experiment_reader(experimentpath, experiment);
 
@@ -30,7 +30,7 @@ disp(['Each experiment is repeated ' num2str(nreps) ' times.'])
 % optional flags
 normalize = 0;
 subtractBL = 1;
-subtractBG = 0;
+subtractBG = 1;
 bio_triplicate = 1;
 
 % determine best arrangement
@@ -77,6 +77,81 @@ for f = 1:length(files)
         end
     end
 end
+
+% induced/uninduced for tag-untag
+ave_od_induced = [ave_od_group(:,1:3) ave_od_group(:,7:9)];
+ave_flu_induced = [ave_flu_group(:,1:3) ave_flu_group(:,7:9)];
+ave_od_uninduced = [ave_od_group(:,4:6) ave_od_group(:,10:12)];
+ave_flu_uninduced = [ave_flu_group(:,4:6) ave_flu_group(:,10:12)];
+
+figure(3)
+subplot(2,1,1)
+plot_timecourse(ave_od_group(:,1:6), 0, metadata.tspace, 0)
+legend('2%','1%','0.4%','0.08%','0.016%','0%','Location','northwest')
+title('induced')
+subplot(2,1,2)
+plot_timecourse(ave_od_group(:,1:6), ave_flu_group(:,1:6), metadata.tspace, normalize)
+legend('2%','1%','0.4%','0.08%','0.016%','0%','Location','northwest')
+
+
+figure(10)
+p1 =  plot(0:10:720,ave_od_induced,'r')
+hold on
+p2 = plot(0:10:720,ave_od_uninduced,'k')
+legend([p1(1) p2(1)],{'induced','uninduced'},'Location','northwest')
+xlabel('time')
+axis([0 720 0 0.8])
+ylabel('OD600')
+title('growth curve of induced/uninduced')
+
+% visualize replicates
+figure,
+for i = 1:6
+    subplot(2,3,i)
+    plot_timecourse(od(:,i+24), 0, metadata.tspace, normalize)
+end
+
+test_flu = ave_flu_induced(1:40,1);
+test_od = ave_od_induced(1:40,1);
+
+
+N0         = 0.002;
+lambda_max = 0.016;
+L          = 300;
+r          = 5;
+alpha      = 3000;
+q          = 0.5;
+Vmax       = 4;
+K          = 1;
+
+allpars(1) = N0 ;
+allpars(2) = lambda_max;
+allpars(3) = L;
+allpars(4) = r;
+allpars(5) = alpha;
+allpars(6) = q;
+allpars(7) = Vmax;
+allpars(8) = K;
+
+
+% define the parameters want to fit
+% example: L and r
+prior = [allpars(3),allpars(4)];
+t = 390;
+likeli_sigma = 100;
+randpars = [300,5;100,10];
+accept_prob = 0.5;
+chainlength = 10000;
+
+testpost = metrosampler(test,t,prior,allpars,likeli_sigma,randpars,accept_prob,chainlength)
+
+
+
+
+
+
+
+
 
 % select_pairs = [3,4;5,6;7,8];
 % for i =1:3
